@@ -1,12 +1,10 @@
 package roboticsScenario
 
-import klava.Locality
-import ros.SubscriptionRequestMsg
-import ros.RosBridge
-import java.util.HashMap
-
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
+import klava.Locality
+import ros.RosBridge
+import ros.SubscriptionRequestMsg
 
 proc CalculateOrientation(Locality wheels) {
 	val normal_vel = 0.9;
