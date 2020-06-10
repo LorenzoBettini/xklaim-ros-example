@@ -54,14 +54,9 @@ proc CalculateOrientation(Locality wheels) {
 				angularz = normal_angel_turn;
 		}}  out("velocity", linearx, angularz)@wheels }
 		
-			
-
-		
 		// HERE WE SHOULD COMBINE linearx with x and angulaz with z
 		// TODO!!!!!!!
-		
 		// Send the velocity tuple updated with obstacle avoidance info to the wheels
-		
 	}
 }
 
@@ -76,7 +71,6 @@ proc LaserSensor() {
 
 	// Insert initial laser tuple in the local tuple space
 	out("laser", 0.0, 0.0, 0.0, 0.0, 0.0)@self
-
 
 	// Make "self" available in the listener
 	val myself = self
@@ -96,20 +90,6 @@ proc LaserSensor() {
 			var double range_right = laserscan.ranges.get(540)
 			var double range_left_last = laserscan.ranges.get(20)
 			var double range_right_last = laserscan.ranges.get(700)
-
-		    //println(" test "+ stringRep);
-			//println("laserscan at 90 degree: : "+range_center);
-		
-			
-
-/*
- 			var HashMap<String,Double> ranges = new HashMap<String,Double>()
-			ranges.put("range_center", laserscan.ranges.get(359))
-			ranges.put("range_left", laserscan.ranges.get(180))
-			ranges.put("range_right", laserscan.ranges.get(540))
-			ranges.put("range_left_last", laserscan.ranges.get(20))
-			ranges.put("range_right_last", laserscan.ranges.get(700))
- */
 
 			// Withdraw the current laser tuple
 			in("laser", var Double anyC, var Double anyL, var Double anyR, var Double anyLL, var Double anyRL)@myself
