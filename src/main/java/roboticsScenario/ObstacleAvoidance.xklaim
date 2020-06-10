@@ -58,8 +58,6 @@ proc CalculateOrientation(Locality wheels) {
 	// Send the velocity tuple updated with obstacle avoidance info to the wheels
 	}
 }
-
-
 proc LaserSensor() {
 	// Set the ROS bridge websocket URI to localhost
 	val rosbridgeWebsocketURI = "ws://0.0.0.0:9090"
@@ -75,24 +73,27 @@ proc LaserSensor() {
 	val myself = self
 
 	// Subscribe to the Scan topic of the robot
-	bridge.subscribe(SubscriptionRequestMsg.generate("/scan").setType("sensor_msgs/LaserScan").setThrottleRate(1).
-		setQueueLength(1), [ data, stringRep |
-		// Extract the laser scanner data from the Json message
-		var mapper = new ObjectMapper();
-		var JsonNode rosMsgNode = data.get("msg")
-		var LaserScan laserscan = mapper.treeToValue(rosMsgNode, LaserScan)
+	bridge.subscribe(
+		SubscriptionRequestMsg.generate("/scan")
+			.setType("sensor_msgs/LaserScan").setThrottleRate(1).
+			setQueueLength(1),
+		[ data, stringRep |
+			// Extract the laser scanner data from the Json message
+			var mapper = new ObjectMapper();
+			var JsonNode rosMsgNode = data.get("msg")
+			var LaserScan laserscan = mapper.treeToValue(rosMsgNode, LaserScan)
 
-		// Extract the range data from the laser scanner data
-		var double range_center = laserscan.ranges.get(359)
-		var double range_left = laserscan.ranges.get(180)
-		var double range_right = laserscan.ranges.get(540)
-		var double range_left_last = laserscan.ranges.get(20)
-		var double range_right_last = laserscan.ranges.get(700)
+			// Extract the range data from the laser scanner data
+			var double range_center = laserscan.ranges.get(359)
+			var double range_left = laserscan.ranges.get(180)
+			var double range_right = laserscan.ranges.get(540)
+			var double range_left_last = laserscan.ranges.get(20)
+			var double range_right_last = laserscan.ranges.get(700)
 
-		// Withdraw the current laser tuple
-		in("laser", var Double anyC, var Double anyL, var Double anyR, var Double anyLL, var Double anyRL)@myself
+			// Withdraw the current laser tuple
+			in("laser", var Double anyC, var Double anyL, var Double anyR, var Double anyLL, var Double anyRL)@myself
 
-		// Insert the tuple with the new laser data
-		out("laser", range_center, range_left, range_right, range_left_last, range_right_last)@myself
-	])
+			// Insert the tuple with the new laser data
+			out("laser", range_center, range_left, range_right, range_left_last, range_right_last)@myself
+		])
 }
