@@ -1,0 +1,30 @@
+package roboticsScenario
+
+import ros.Publisher
+import ros.RosBridge
+import ros.msgs.geometry_msgs.Twist
+
+proc WheelsActuator() {
+	// Set the ROS bridge websocket URI to localhost
+	val rosbridgeWebsocketURI = "ws://0.0.0.0:9090"
+
+	// Create the bridge and connect it to the ROS bridge
+	val bridge = new RosBridge()
+	bridge.connect(rosbridgeWebsocketURI, true)
+
+	// Initialize a publisher for the topic related to the control of the robot's wheels
+	val pub = new Publisher("/robot_base_velocity_controller/cmd_vel", "geometry_msgs/Twist", bridge)
+
+	while (true) {
+		// Consume a velocity tuple
+		in("velocity", var Double x, var Double z)@self
+
+		// Create a ROS message Twist, and populate it with the tuple data
+		val twistMsg = new Twist();
+		twistMsg.linear.x = x
+		twistMsg.angular.z = z
+
+		// Publish the corresponding Twist message for the velocity topic in the ROS bridge
+		pub.publish(twistMsg);
+	}
+}

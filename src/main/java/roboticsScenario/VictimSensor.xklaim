@@ -1,0 +1,27 @@
+package roboticsScenario
+
+proc VictimSensor(Locality controller, Locality position) {
+	// For the sake of simplicity, the victim's position is hardcoded
+	val victimX = 5.5
+	val victimY = 7.0
+	val distanceTolerance = 0.4
+
+	var victimFound = false
+
+	while (!victimFound) {
+		// Get the current position of the robot
+		read("position", var Double x, var Double y, var Double anyTheta)@position
+
+		// Calculate the distance from the victim 
+		val distance = Math.sqrt(Math.pow(x - victimX, 2) + Math.pow(y - victimY, 2))
+
+		if (distance <= distanceTolerance) {
+			// Victim detected
+			victimFound = true
+
+			// Update the control step
+			in("control step", var String stepType)@controller
+			out("control step", "victim detected")@controller
+		}
+	}
+}

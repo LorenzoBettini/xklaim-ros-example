@@ -1,0 +1,45 @@
+package roboticsScenario
+
+/**
+ * This process simulates the consumption of the robot's battery
+ */
+proc BatteryConsumption() {
+	var batteryLevel = 35 // 100
+	// Set the initial battery level
+	out("battery level", batteryLevel)@self
+	while (batteryLevel > 0) {
+		// Wait for a bit of time 
+		Thread.sleep(1000)
+
+		// Decrease the battery level
+		in("battery level", var Integer currentBattery)@self
+		batteryLevel = currentBattery - 1
+		out("battery level", batteryLevel)@self
+	}
+
+	// The battery is empty: stop the robot movement
+	println("The robot's battery is empty!")
+	System.exit(0)
+}
+
+/**
+ * This process simulates the charge of the robot's battery
+ */
+proc BatteryCharge(Locality position) {
+	// Publish the charge station position (we asssume at coordinates (5.0, 4.5))
+	val stationPosX = 5.0
+	val stationPosY = 4.5
+	out("charge station position", stationPosX, stationPosY)@self
+
+	while (true) {
+		// When the robot arrive at the charge station, its battery will be 
+		// fully recharged in a bit of time
+		in("arrived at destination", stationPosX, stationPosY)@position
+		println("Robot's under charge...")
+		in("battery level", var Integer currentBattery)@self
+		Thread.sleep(3000)
+		out("battery level", 100)@self
+		out("battery full")@self
+	}
+
+}

@@ -1,0 +1,16 @@
+package roboticsScenario
+
+proc LowBatterySensor(Locality controller) {
+	while (true) {
+		// The process is triggered by a battery level of 30%
+		read("battery level", 30)@self
+		// Replace the current control step with the low battery one
+		in("control step", var String anyStep)@controller
+		out("control step", "low battery")@controller
+
+		// When the battery is charged, send a battery charged signal and restart
+		in("battery full")@self
+		out("battery charged")@self
+		println("battery charged")
+	}
+}

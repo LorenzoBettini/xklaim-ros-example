@@ -1,0 +1,44 @@
+package roboticsScenario
+
+import ros.RosBridge
+import ros.SubscriptionRequestMsg
+
+proc PositionSensor() {
+	// Set the ROS bridge websocket URI to localhost
+	val rosbridgeWebsocketURI = "ws://0.0.0.0:9090"
+
+	// Create the bridge and connect it to the ROS bridge
+	val bridge = new RosBridge()
+	bridge.connect(rosbridgeWebsocketURI, true)
+
+	// Insert initial position and orientation tuple in the local tuple space
+	out("position", 5.0, 4.5, 0.0)@self
+
+	// Make "self" available in the listener
+	val myself = self
+
+	// Subscribe to the Pose topic of the robot
+	bridge.subscribe(
+		SubscriptionRequestMsg.generate("/robot_base_velocity_controller/odom").setType("nav_msgs/Odometry").
+			setThrottleRate(1).setQueueLength(1), [ data, stringRep |
+			// Extract the position coordinates from the Json message
+			val x = data.get("msg").get("pose").get("pose").get("position").get("x").asDouble();
+			val y = data.get("msg").get("pose").get("pose").get("position").get("y").asDouble();
+
+			// Extract the orientation data from the Json message and compute the theta angle
+			val qx = data.get("msg").get("pose").get("pose").get("orientation").get("x").asDouble();
+			val qy = data.get("msg").get("pose").get("pose").get("orientation").get("y").asDouble();
+			val qz = data.get("msg").get("pose").get("pose").get("orientation").get("z").asDouble();
+			val qw = data.get("msg").get("pose").get("pose").get("orientation").get("w").asDouble();
+			val siny_cosp = 2 * (qw * qz + qx * qy);
+			val cosy_cosp = 1 - 2 * (qy * qy + qz * qz);
+			val theta = Math.atan2(siny_cosp, cosy_cosp);
+
+			// Withdraw the current position and orientation tuple
+			in("position", var Double anyX, var Double anyY, var Double anyTheta)@myself
+
+			// Insert the tuple with the new position and orientation
+			out("position", x, y, theta)@myself
+		])
+}
+

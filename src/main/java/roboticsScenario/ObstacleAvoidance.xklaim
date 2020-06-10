@@ -1,0 +1,125 @@
+package roboticsScenario
+
+import klava.Locality
+import ros.SubscriptionRequestMsg
+import ros.RosBridge
+import java.util.HashMap
+
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.JsonNode
+
+proc CalculateOrientation(Locality wheels) {
+	val normal_vel = 0.9;
+	val normal_angel_turn = 2.57284;
+	val last_ob_vel = 0;
+	val last_ob_angel = 0.21845;
+	val half_angel = 1.57284;
+	
+	while (true) {
+		// Consume a velocity tuple
+		in("velocity", var Double x, var Double z)@self
+		
+		// Read laser data
+		read("laser", var Double range_center, var Double range_left, var Double range_right, var Double range_left_last, var Double range_right_last)@self
+		
+		// Compute the obstacle avoidance velocity data
+		var linearx = 0.0;
+		var angularz = 0.0;
+		
+	// the case without obstacles	
+	if  ((range_center == 0.0)&&(range_right == 0.0)&&(range_left == 0.0)&&(range_right_last == 0.0)&& (range_left_last == 0.0))
+			out("velocity", x, z)@wheels 
+		
+					
+	//the case with obstacles
+	else{
+		if (range_center == 0.0) {
+			linearx = normal_vel;		
+			if ((range_left_last != 0.0) && (range_left_last < 0.2)) {
+				linearx = normal_vel;
+				angularz = normal_angel_turn;
+			} else if ((range_right_last != 0.0) && range_right_last < 0.2) {
+				linearx = normal_vel;
+				angularz = -normal_angel_turn;
+			} 
+			
+		} 
+    	 else {
+			if ((range_left_last == 0.0) || (range_left == 0.0)) {
+				linearx = 0;
+				angularz = -normal_angel_turn;
+			} else if ((range_right_last == 0.0) || (range_right == 0.0)) {
+				linearx = 0;
+				angularz = normal_angel_turn;
+			} else if (range_left > range_right) {
+				linearx = 0;
+				angularz = -normal_angel_turn;
+			} else {
+				linearx = normal_vel;
+				angularz = normal_angel_turn;
+		}}  out("velocity", linearx, angularz)@wheels }
+		
+			
+
+		
+		// HERE WE SHOULD COMBINE linearx with x and angulaz with z
+		// TODO!!!!!!!
+		
+		// Send the velocity tuple updated with obstacle avoidance info to the wheels
+		
+	}
+}
+
+
+proc LaserSensor() {
+	// Set the ROS bridge websocket URI to localhost
+	val rosbridgeWebsocketURI = "ws://0.0.0.0:9090"
+
+	// Create the bridge and connect it to the ROS bridge
+	val bridge = new RosBridge()
+	bridge.connect(rosbridgeWebsocketURI, true)
+
+	// Insert initial laser tuple in the local tuple space
+	out("laser", 0.0, 0.0, 0.0, 0.0, 0.0)@self
+
+
+	// Make "self" available in the listener
+	val myself = self
+
+	// Subscribe to the Scan topic of the robot
+	bridge.subscribe(
+		SubscriptionRequestMsg.generate("/scan").setType("sensor_msgs/LaserScan").
+			setThrottleRate(1).setQueueLength(1), [ data, stringRep |
+			// Extract the laser scanner data from the Json message
+			var mapper = new ObjectMapper();
+			var JsonNode rosMsgNode = data.get("msg")
+			var LaserScan laserscan = mapper.treeToValue(rosMsgNode, LaserScan)
+		
+			// Extract the range data from the laser scanner data
+			var double range_center = laserscan.ranges.get(359)
+			var double range_left = laserscan.ranges.get(180)
+			var double range_right = laserscan.ranges.get(540)
+			var double range_left_last = laserscan.ranges.get(20)
+			var double range_right_last = laserscan.ranges.get(700)
+
+		    //println(" test "+ stringRep);
+			//println("laserscan at 90 degree: : "+range_center);
+		
+			
+
+/*
+ 			var HashMap<String,Double> ranges = new HashMap<String,Double>()
+			ranges.put("range_center", laserscan.ranges.get(359))
+			ranges.put("range_left", laserscan.ranges.get(180))
+			ranges.put("range_right", laserscan.ranges.get(540))
+			ranges.put("range_left_last", laserscan.ranges.get(20))
+			ranges.put("range_right_last", laserscan.ranges.get(700))
+ */
+
+			// Withdraw the current laser tuple
+			in("laser", var Double anyC, var Double anyL, var Double anyR, var Double anyLL, var Double anyRL)@myself
+
+			// Insert the tuple with the new laser data
+			out("laser", range_center, range_left, range_right, range_left_last, range_right_last)@myself
+		])
+}

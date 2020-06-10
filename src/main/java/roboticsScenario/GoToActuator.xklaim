@@ -1,0 +1,49 @@
+package roboticsScenario
+
+proc GoToActuator(Locality position) {
+	val distanceTolerance = 0.3
+
+	while (true) {
+		// Consume a 'go to' tuple
+		in("go to", var Double destinationX, var Double destinationY)@self
+		println(String.format("go to: %f, %f", destinationX, destinationY))
+
+		// Read starting position and calculate initial distance
+		read("position", var Double startingX, var Double startingY, var Double anyTheta)@position
+		var distance = Math.sqrt(
+			Math.pow(startingX - destinationX, 2) + Math.pow(startingY - destinationY, 2)
+		)
+
+		// Move towards the destination until the distance is less than the tolerance
+		while (distance >= distanceTolerance) {
+			// Set linear velocity
+			var linearVelocity = 1.5
+			if (distance < 1) {
+				linearVelocity *= distance
+			}
+
+			// Read current position and orientation
+			read("position", var Double x, var Double y, var Double theta)@position
+
+			// Calculate the distance
+			distance = Math.sqrt(Math.pow(x - destinationX, 2) + Math.pow(y - destinationY, 2))
+
+			// Calculate the steering angle
+			val steeringAngle = Math.atan2(destinationY - y, destinationX - x)
+
+			// Set the angular velocity
+			val angularVelocity = 1.0 * (steeringAngle - theta)
+
+			// Insert the velocity tuple in the wheels actuator's tuple space
+			out("velocity", linearVelocity, angularVelocity)@self
+
+			// Wait for a bit of time before changing direction
+			Thread.sleep(100)
+		}
+
+		// Signal that the robot is arrived at destination
+		out("arrived at destination", destinationX, destinationY)@position
+	}
+}
+
+

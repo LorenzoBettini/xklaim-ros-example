@@ -1,0 +1,30 @@
+package roboticsScenario 
+
+net RobotNet physical "localhost:9999" {
+	node Position {
+		eval(new PositionSensor())@self
+	}
+	node Wheels {
+		eval(new WheelsActuator())@self
+		eval(new GoToActuator(Position))@self
+	}
+	node Controller {
+		eval(new RobotController(Wheels, Position, Battery, ObstacleAvoidance))@self
+	}
+	node Victim {
+		eval(new VictimSensor(Controller, Position))@self
+	}
+	node Battery {
+		eval(new LowBatterySensor(Controller))@self
+		eval(new BatteryConsumption())@self
+		eval(new BatteryCharge(Position))@self
+	}
+	node ObstacleAvoidance {
+	   	eval(new LaserSensor())@self
+		eval(new CalculateOrientation(Wheels))@self
+	}
+}
+ 
+
+
+ 
