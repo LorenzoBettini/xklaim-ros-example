@@ -9,9 +9,6 @@ import ros.SubscriptionRequestMsg
 proc CalculateOrientation(Locality wheels) {
 	val normal_vel = 0.9;
 	val normal_angel_turn = 2.57284;
-	val last_ob_vel = 0;
-	val last_ob_angel = 0.21845;
-	val half_angel = 1.57284;
 	
 	while (true) {
 		// Consume a velocity tuple

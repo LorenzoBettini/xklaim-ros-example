@@ -17,9 +17,6 @@ public class CalculateOrientation extends KlavaProcess {
   public void executeProcess() {
     final double normal_vel = 0.9;
     final double normal_angel_turn = 2.57284;
-    final int last_ob_vel = 0;
-    final double last_ob_angel = 0.21845;
-    final double half_angel = 1.57284;
     while (true) {
       {
         Double x = null;
