@@ -29,12 +29,9 @@ public class RobotController extends KlavaProcess {
   @Override
   public void executeProcess() {
     try {
-      final int controlSteps = 10000;
       final Random rand = new Random();
-      final double linearVelocity = 1.5;
-      double angularVelocity = 0.0;
       out(new Tuple(new Object[] {"control step", "random walking"}), this.self);
-      for (int i = 1; (i <= controlSteps); i++) {
+      while (true) {
         {
           String stepType = null;
           Tuple _Tuple = new Tuple(new Object[] {"control step", String.class});
@@ -44,8 +41,8 @@ public class RobotController extends KlavaProcess {
           if (_equals) {
             float _nextFloat = rand.nextFloat();
             float _multiply = (_nextFloat * 10);
-            float _minus = (_multiply - 5);
-            angularVelocity = _minus;
+            final float angularVelocity = (_multiply - 5);
+            final double linearVelocity = 1.5;
             out(new Tuple(new Object[] {"velocity", linearVelocity, angularVelocity}), this.obstacleAvoidance);
             Thread.sleep(100);
           } else {
@@ -67,19 +64,16 @@ public class RobotController extends KlavaProcess {
               boolean _equals_2 = Objects.equal(stepType, "victim detected");
               if (_equals_2) {
                 out(new Tuple(new Object[] {"velocity", 0.0, 0.0}), this.wheels);
-                String anyStep = null;
-                Tuple _Tuple_2 = new Tuple(new Object[] {"control step", String.class});
-                in(_Tuple_2, this.self);
-                anyStep = (String) _Tuple_2.getItem(1);
                 Double x = null;
                 Double y = null;
                 Double anyTheta = null;
-                Tuple _Tuple_3 = new Tuple(new Object[] {"position", Double.class, Double.class, Double.class});
-                read(_Tuple_3, this.position);
-                x = (Double) _Tuple_3.getItem(1);
-                y = (Double) _Tuple_3.getItem(2);
-                anyTheta = (Double) _Tuple_3.getItem(3);
+                Tuple _Tuple_2 = new Tuple(new Object[] {"position", Double.class, Double.class, Double.class});
+                read(_Tuple_2, this.position);
+                x = (Double) _Tuple_2.getItem(1);
+                y = (Double) _Tuple_2.getItem(2);
+                anyTheta = (Double) _Tuple_2.getItem(3);
                 InputOutput.<String>println(String.format("victim detected at position: %f, %f", x, y));
+                return;
               }
             }
           }

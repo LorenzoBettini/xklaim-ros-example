@@ -3,28 +3,23 @@ package roboticsScenario
 import java.util.Random
 
 proc RobotController(Locality wheels,Locality position, Locality battery, Locality obstacleAvoidance) {
-	val controlSteps = 10000
 	val rand = new Random()
-	val linearVelocity = 1.5
-	var angularVelocity = 0.0
 
 	// Insert an initial control step tuple in the controller's tuple space
 	out("control step", "random walking")@self
 
 	// Execute the specified number of control steps
-	for (var i = 1; i <= controlSteps; i++) {
+	while (true) {
 		// Read the control step tuple
 		read("control step", var String stepType)@self
-		
-		
 
 		if (stepType == "random walking") {
 			// *** RANDOM WALKING BEHAVIOUR ***
 			// Compute a random angular velocity
-			angularVelocity = rand.nextFloat() * 10 - 5
-		
+			val angularVelocity = rand.nextFloat() * 10 - 5
+			val linearVelocity = 1.5
 
-		    // Create the tuple indicating the velocity broken in its linear and 
+			// Create the tuple indicating the velocity broken in its linear and 
 			// angular part, and insert it in the obstacle avoidance's tuple space
 			out("velocity", linearVelocity, angularVelocity)@obstacleAvoidance
 
@@ -45,14 +40,10 @@ proc RobotController(Locality wheels,Locality position, Locality battery, Locali
 			in("control step", "low battery")@self
 			out("control step", "random walking")@self
 			println("random walking mode")
-
 		} else if (stepType == "victim detected") {
 			// *** VICTIM DETECTED BEHAVIOUR ***
 			// Stop the robot movement: send velocity 0 to the wheels actuator,
-			// and consume the control step tuple to disable any robot behavior 
-			// after the current control step
 			out("velocity", 0.0, 0.0)@wheels
-			in("control step", var String anyStep)@self
 
 			// Retrieve and print out the current position of the robot
 			read("position", var Double x, var Double y, var Double anyTheta)@position
@@ -60,7 +51,7 @@ proc RobotController(Locality wheels,Locality position, Locality battery, Locali
 			// Call the rescuers at the current position (here simply rendered 
 			// as a print out in the console)
 			println(String.format("victim detected at position: %f, %f", x, y))
+			return
 		}
-
 	}
 }
