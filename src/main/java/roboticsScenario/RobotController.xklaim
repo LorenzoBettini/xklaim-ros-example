@@ -4,6 +4,7 @@ import java.util.Random
 
 proc RobotController(Locality wheels,Locality position, Locality battery, Locality obstacleAvoidance) {
 	val rand = new Random()
+        val angularVelocity = 0.0
 
 	// Insert an initial control step tuple in the controller's tuple space
 	out("control step", "random walking")@self
@@ -16,7 +17,7 @@ proc RobotController(Locality wheels,Locality position, Locality battery, Locali
 		if (stepType == "random walking") {
 			// *** RANDOM WALKING BEHAVIOUR ***
 			// Compute a random angular velocity
-			val angularVelocity = rand.nextFloat() * 10 - 5
+			angularVelocity = rand.nextFloat() * 10 - 5
 			val linearVelocity = 1.5
 
 			// Create the tuple indicating the velocity broken in its linear and 
