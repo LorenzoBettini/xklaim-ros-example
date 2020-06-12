@@ -22,14 +22,16 @@ proc PositionSensor() {
 		SubscriptionRequestMsg.generate("/robot_base_velocity_controller/odom").setType("nav_msgs/Odometry").
 			setThrottleRate(1).setQueueLength(1), [ data, stringRep |
 			// Extract the position coordinates from the Json message
-			val x = data.get("msg").get("pose").get("pose").get("position").get("x").asDouble();
-			val y = data.get("msg").get("pose").get("pose").get("position").get("y").asDouble();
-
+			val pose = data.get("msg").get("pose").get("pose")
+			val position = pose.get("position")
+			val x = position.get("x").asDouble();
+			val y = position.get("y").asDouble();
 			// Extract the orientation data from the Json message and compute the theta angle
-			val qx = data.get("msg").get("pose").get("pose").get("orientation").get("x").asDouble();
-			val qy = data.get("msg").get("pose").get("pose").get("orientation").get("y").asDouble();
-			val qz = data.get("msg").get("pose").get("pose").get("orientation").get("z").asDouble();
-			val qw = data.get("msg").get("pose").get("pose").get("orientation").get("w").asDouble();
+			val orientation = pose.get("orientation")
+			val qx = orientation.get("x").asDouble();
+			val qy = orientation.get("y").asDouble();
+			val qz = orientation.get("z").asDouble();
+			val qw = orientation.get("w").asDouble();
 			val siny_cosp = 2 * (qw * qz + qx * qy);
 			val cosy_cosp = 1 - 2 * (qy * qy + qz * qz);
 			val theta = Math.atan2(siny_cosp, cosy_cosp);

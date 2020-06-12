@@ -22,12 +22,15 @@ public class PositionSensor extends KlavaProcess {
     out(new Tuple(new Object[] {"position", 5.0, 4.5, 0.0}), this.self);
     final Locality myself = this.self;
     final RosListenDelegate _function = (JsonNode data, String stringRep) -> {
-      final double x = data.get("msg").get("pose").get("pose").get("position").get("x").asDouble();
-      final double y = data.get("msg").get("pose").get("pose").get("position").get("y").asDouble();
-      final double qx = data.get("msg").get("pose").get("pose").get("orientation").get("x").asDouble();
-      final double qy = data.get("msg").get("pose").get("pose").get("orientation").get("y").asDouble();
-      final double qz = data.get("msg").get("pose").get("pose").get("orientation").get("z").asDouble();
-      final double qw = data.get("msg").get("pose").get("pose").get("orientation").get("w").asDouble();
+      final JsonNode pose = data.get("msg").get("pose").get("pose");
+      final JsonNode position = pose.get("position");
+      final double x = position.get("x").asDouble();
+      final double y = position.get("y").asDouble();
+      final JsonNode orientation = pose.get("orientation");
+      final double qx = orientation.get("x").asDouble();
+      final double qy = orientation.get("y").asDouble();
+      final double qz = orientation.get("z").asDouble();
+      final double qw = orientation.get("w").asDouble();
       final double siny_cosp = (2 * ((qw * qz) + (qx * qy)));
       final double cosy_cosp = (1 - (2 * ((qy * qy) + (qz * qz))));
       final double theta = Math.atan2(siny_cosp, cosy_cosp);
