@@ -30,7 +30,6 @@ public class RobotController extends KlavaProcess {
   public void executeProcess() {
     try {
       final Random rand = new Random();
-      double angularVelocity = 0.0;
       out(new Tuple(new Object[] {"control step", "random walking"}), this.self);
       while (true) {
         {
@@ -40,10 +39,9 @@ public class RobotController extends KlavaProcess {
           stepType = (String) _Tuple.getItem(1);
           boolean _equals = Objects.equal(stepType, "random walking");
           if (_equals) {
-            float _nextFloat = rand.nextFloat();
-            float _multiply = (_nextFloat * 10);
-            float _minus = (_multiply - 5);
-            angularVelocity = _minus;
+            double _nextDouble = rand.nextDouble();
+            double _multiply = (_nextDouble * 10);
+            double angularVelocity = (_multiply - 5);
             final double linearVelocity = 1.5;
             out(new Tuple(new Object[] {"velocity", linearVelocity, angularVelocity}), this.obstacleAvoidance);
             Thread.sleep(100);
