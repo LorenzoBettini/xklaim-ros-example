@@ -17,7 +17,7 @@ proc RobotController(Locality wheels,Locality position, Locality battery, Locali
 		if (stepType == "random walking") {
 			// *** RANDOM WALKING BEHAVIOUR ***
 			// Compute a random angular velocity
-		    angularVelocity = rand.nextFloat() * 10 - 5
+			angularVelocity = rand.nextFloat() * 10 - 5
 			val linearVelocity = 1.5
 
 			// Create the tuple indicating the velocity broken in its linear and 
@@ -55,7 +55,7 @@ proc RobotController(Locality wheels,Locality position, Locality battery, Locali
 			println(String.format("victim detected at position: %f, %f", x, y))
 			return
 		}
-		
+
 	}
-	
+
 }
